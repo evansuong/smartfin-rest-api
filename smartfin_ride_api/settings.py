@@ -26,7 +26,7 @@ SECRET_KEY = 'y(4(nldej8z9qmgvtz79e_go+3==nq!#v%=e)he#wj=igrini7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['http://srapi-env.eba-ksavqrxc.us-west-2.elasticbeanstalk.com/']
+ALLOWED_HOSTS = ['https://lit-sands-95859.herokuapp.com/']
 
 
 # Application definition
