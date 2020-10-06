@@ -15,6 +15,8 @@ from .models import RideData, Buoys
 import json
 import random
 
+# TODO: combine get many with the location and date views
+
 
 # Create your views here.
 @api_view(['GET'])
