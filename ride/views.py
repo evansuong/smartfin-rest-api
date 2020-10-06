@@ -99,8 +99,6 @@ def rideGetMany(request, count):
 @api_view(['GET']) 
 def fieldGet(request, rideId, fields):
 
-    
-    
     attributes = []
 
     if ':' in fields:
@@ -113,7 +111,6 @@ def fieldGet(request, rideId, fields):
     rd = RideData.objects.get(rideId=rideId)
     for attribute in attributes:
         data[attribute] = getattr(rd, attribute)
-
 
     return JsonResponse(data)
 
@@ -128,16 +125,13 @@ def fieldGetMany(request, fields, count):
 
     if ':' in fields:
         attributes = fields.split(':')
-        print(attributes)
 
     else:
         attributes.append(fields)
     
     fieldList = RideData.objects.all().values_list(*attributes)
-    print(fieldList)
     fieldList = random.sample(list(fieldList), count)
     data = {'data': [dict(zip(attributes, values)) for values in fieldList]}
-    print(data)
     return JsonResponse(data)
 
     
