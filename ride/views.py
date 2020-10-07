@@ -240,45 +240,6 @@ def fieldGetDate(request, startDate, endDate, fields):
 
 
 
-@api_view(['GET'])
-def rideFindByLoc(request, location):
-    # return all ride ids if all locations are specified
-    if (location == 'all'):
-        rd = RideData.objects.all()
-    # only return ids in the specified location
-    else:
-        if ':' in location:
-            loc1, loc3 = location.split(':')
-        else:
-            loc1 = location
-            loc3 = location
-        # here | is being used as set union not bitwise OR
-        rd = RideData.objects.filter(Q(loc1=loc1) | Q(loc2=loc1) | Q(loc3=loc1) | Q(loc1=loc3) | Q(loc2=loc3) | Q(loc3=loc3) )
-
-    # build a list of all the ride ids
-    data = [ride.rideId for ride in rd]
-    data = {'ids': data}
-    return JsonResponse(data)
-
-  
-@api_view(['GET'])
-def rideFindByDate(request, startDate, endDate):
-
-    try:     
-        startDate = int(startDate)
-        endDate = int(endDate)
-    except:
-        return JsonResponse({'error': 'dates must be formatted in unix time'})
-
-    # get all rides that occur after the startDate
-    rd = RideData.objects.filter(Q(startTime__gte=startDate) & Q(endTime__lte=endDate))
-    # build a list of all the ride ids
-    data = [ride.rideId for ride in rd]
-    data = {'ids': data}
-    return JsonResponse(data)
-
-
-
 
 
 @api_view(['PUT'])
@@ -302,24 +263,6 @@ def updateHeights(request):
         ride.save() # this will update only
 
     return JsonResponse({'success': 'rides updated '})
-
-
-
-
-# return motion data of one ride, or multiple rides
-@api_view(['GET'])
-def motionData(request, rideId='all'):
-
-    # either return motion data of all rides or one ride
-    if rideId == 'all':
-        rd = RideData.objects.all()
-    else:
-        rd = RideData.objects.filter(rideId=rideId)
-
-    # return motion data as JSON object
-    data = rd.values_list('motionData', flat=True)
-    print(data)
-    return Response({'data': data[0]})
 
 
 
