@@ -8,9 +8,7 @@ from rest_framework.decorators import api_view
 
 from .serializers import RideSerializer, HeightSerializer, TempSerializer, BuoySerializer
 
-import sys 
-sys.path.append('../')
-from smartfin_ride_module import RideModule
+from .modules.smartfin_ride_module import RideModule
 from .models import RideData, Buoys
 import json
 import random
@@ -24,6 +22,7 @@ def rideOverview(request):
     # list of url patterns in this api
     api_urls = {
         'List all ride ids': '/ride-list/',
+        'List ride fields': '/ride-fields/',
 
         'Get single ride': '/ride-get/<str:rideId>/',
         'Get random set of rides': '/many/ride-get/<int:count>/',
@@ -48,11 +47,37 @@ def rideOverview(request):
 def rideList(request):
     rd = RideData.objects.all()
     data = rd.values_list('rideId', flat=True).order_by('startTime')
-    data = {'data': data}
+    data = {'ids': list(data)}
     return JsonResponse(data)
 
 
-# create new ride 
+
+@api_view(['GET'])
+def rideFields(request):
+    data = {
+        'id of smartfin session': 'rideId',
+        'location (city, county, state) of session': 'loc1, loc2, loc3',
+        'start time of session': 'startTime',
+        'end time of session': 'endTime',
+        'significant wave height calculated by smartfin': 'heightSmartfin',
+        'significant wave height reported by nearest CDIP buoy': 'heightCDIP',
+        'time series displacement data calcualted by smartfin': 'heightList',
+        'time series temperature data calcualted by smartfin': 'tempList',
+        'sample rate of smartfin IMU time series data': 'heightSampleRate',
+        'sample rate of smartfin ocean time series  data': 'tempSampleRate',
+        'calibrated ocean temperature read by smartfin': 'tempSmartfin',
+        'ocean temperature reported by nearest CDIP buoy': 'tempCDIP',
+        'nearest CDIP buoy to smartfin session': 'buoyCDIP',
+        'latitude of smartfin session': 'latitude',
+        'longitude of smartfin session': 'longitude',
+        'IMU data csv file': 'motionData',
+        'ocean sensor csv file': 'oceanData'
+    }
+    return JsonResponse(data)
+
+
+
+# create new ride or return it if it is already in the database 
 @api_view(['GET'])
 def rideGet(request, rideId):
     # if ride already exists in the database, return it

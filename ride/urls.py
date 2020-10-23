@@ -21,6 +21,7 @@ urlpatterns = [
     path('', views.rideOverview, name='ride-overview'),
 
     path('ride-list/', views.rideList, name='ride-list'),
+    path('ride-fields', views.rideFields, name='ride-fields'),
 
     path('ride-get/<str:rideId>/', views.rideGet, name='ride-get-single'),
     path('random/ride-get/<int:count>/', views.rideGetRandom, name='ride-get-random'),

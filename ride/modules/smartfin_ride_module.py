@@ -16,7 +16,7 @@ import random
 
 from io import StringIO
 
-from double_integral_bandpass import double_integral_bandpass_filter
+from .double_integral_bandpass import double_integral_bandpass_filter
 
 
 # 14743 - Motion Control July 10th
