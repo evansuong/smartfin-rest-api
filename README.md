@@ -109,8 +109,10 @@ data:
 
 
 ### parsing motion and ocean CSV string into a pandas dataframe through StringIO:
+```python
 from io import StringIO
 import pandas as pd
 
 csv_str = StringIO(data['motionData'])
 dataframe = pd.read_csv(csv_str)
+```
