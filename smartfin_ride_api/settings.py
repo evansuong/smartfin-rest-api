@@ -26,7 +26,7 @@ SECRET_KEY = 'y(4(nldej8z9qmgvtz79e_go+3==nq!#v%=e)he#wj=igrini7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['lit-sands-95859.herokuapp.com']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
