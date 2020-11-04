@@ -16,6 +16,10 @@ import random
 
 from io import StringIO
 
+# importing required modules 
+from zipfile import ZipFile 
+  
+
 from .double_integral_bandpass import double_integral_bandpass_filter
 
 
@@ -125,33 +129,53 @@ class RideModule:
 
         loc1, loc2, loc3 = self.get_nearest_city(latitude, longitude)
 
+        # compress dataframes and save path
+        mdf_path = f"ride/motion_dfs/{ride_id}_mdf.csv.zip"
+        odf_path = f"ride/ocean_dfs/{ride_id}_odf.csv.zip"
+
+        mdf.to_csv(mdf_path, 
+           index=False,
+           compression="zip")
+
+        odf.to_csv(odf_path,
+            index=False,
+            compression="zip")
+
         # format data into dict for ride model
         data = {
             'rideId': ride_id, 
             'loc1': loc1,
             'loc2': loc2,
             'loc3': loc3,
-            'startTime': start_time,
-            'endTime': end_time,
+            'startTime': int(start_time),
+            'endTime': int(end_time),
             'heightSmartfin': height_smartfin,
-            'heightList': height_list, 
-            'heightSampleRate': height_sample_rate,
             'tempSmartfin': temp_smartfin,
-            'tempList': temp_list,
-            'tempSampleRate': temp_sample_rate,
             'buoyCDIP': nearest_CDIP, 
             'heightCDIP': mean_CDIP, 
             'tempCDIP': temp_CDIP, 
             'latitude': latitude,
             'longitude': longitude,
-            'motionData': mdf.to_csv(),
-            'oceanData': odf.to_csv(),
+            'motionData': mdf_path,
+            'oceanData': odf_path,
         }
     
         return data
         
-            
-        
+
+    # get zipped dataframes from directory
+    def get_zipped_dfs(self, mdf_path, odf_path):
+        mdf = self.import_zip(mdf_path)
+        odf = self.import_zip(odf_path)
+        return mdf, odf
+
+    # import zip file from directory and return it
+    def import_zip(self, path):
+        # opening the zip file in READ mode 
+        with ZipFile(path, 'r') as zip: 
+            # extracting all the files 
+            return zip 
+
 
     # HELPER FUNCTIONS
     def get_ride_height(self, ride_id, mdf):
@@ -671,3 +695,5 @@ class RideModule:
     # 
     #         print('finished uploading.')
 
+
+# %%
