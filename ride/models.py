@@ -19,7 +19,7 @@ class RideData(models.Model):
     tempSmartfin = models.FloatField(blank=True, null=True)
 
     # CDIP calculated data
-    buoyCDIP = models.CharField(max_length=3)
+    buoyCDIP = models.CharField(max_length=3, blank=True, null=True)
     heightCDIP = models.FloatField(blank=True, null=True)
     tempCDIP = models.FloatField(blank=True, null=True)
 
