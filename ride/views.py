@@ -12,6 +12,7 @@ from .modules.smartfin_ride_module import RideModule
 from .models import RideData, Buoys
 import json
 import random
+import sys
 
 # TODO: combine get many with the location and date views
 
@@ -179,6 +180,7 @@ def fieldGet(request, rideId, fields):
     for attribute in attributes:
         data[attribute] = getattr(field, attribute)
 
+
     return JsonResponse(data)
 
 
@@ -300,28 +302,3 @@ def buoyList(request):
     return Response(data)
 
 
-
-# @api_view(['GET'])
-# def oceanData(request):
-
-#     data = OceanData.objects.all()
-#     serializer = OceanSerializer(data, many=True)
-#     return Response(serializer.data)
-
-
-
-# @api_view(['GET'])
-# def motionDetail(request, rideId):
-
-#     data = MotionData.objects.filter(rideId=rideId)
-#     serializer = MotionSerializer(data, many=True)
-#     return Response(serializer.data)
-
-
-
-# @api_view(['GET'])
-# def oceanDetail(request, rideId):
-
-#     data = OceanData.objects.filter(rideId=rideId)
-#     serializer = OceanSerializer(data, many=True)
-#     return Response(serializer.data)
