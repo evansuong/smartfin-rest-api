@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import RideData, Buoys
+from .models import RideData, Buoy, DataframeCSV
 
 # Register your models here.
 class TaskAdmin(admin.ModelAdmin):
@@ -7,6 +7,7 @@ class TaskAdmin(admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(RideData)
-admin.site.register(Buoys)
+admin.site.register(Buoy)
+admin.site.register(DataframeCSV)
 # admin.site.register(OceanData)
 # admin.site.register(MotionData)

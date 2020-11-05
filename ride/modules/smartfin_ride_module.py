@@ -16,9 +16,6 @@ import random
 
 from io import StringIO
 
-# importing required modules 
-from zipfile import ZipFile 
-  
 
 from .double_integral_bandpass import double_integral_bandpass_filter
 
@@ -130,16 +127,12 @@ class RideModule:
         loc1, loc2, loc3 = self.get_nearest_city(latitude, longitude)
 
         # compress dataframes and save path
-        mdf_path = f"ride/motion_dfs/{ride_id}_mdf.csv.zip"
-        odf_path = f"ride/ocean_dfs/{ride_id}_odf.csv.zip"
+        mdf_path = f"ride/motion_dfs/{ride_id}_mdf.csv"
+        odf_path = f"ride/ocean_dfs/{ride_id}_odf.csv"
 
-        mdf.to_csv(mdf_path, 
-           index=False,
-           compression="zip")
+        mdf.to_csv(mdf_path, index=False)
+        odf.to_csv(odf_path, index=False)
 
-        odf.to_csv(odf_path,
-            index=False,
-            compression="zip")
 
         # format data into dict for ride model
         data = {
@@ -156,11 +149,14 @@ class RideModule:
             'tempCDIP': temp_CDIP, 
             'latitude': latitude,
             'longitude': longitude,
+        }
+
+        dfs = {
             'motionData': mdf_path,
             'oceanData': odf_path,
         }
     
-        return data
+        return data, dfs
         
 
     # get zipped dataframes from directory
