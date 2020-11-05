@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, FileResponse
 from django.db.models import Q
 from rest_framework import serializers
 
@@ -9,10 +9,15 @@ from rest_framework.decorators import api_view
 from .serializers import RideSerializer, HeightSerializer, TempSerializer, BuoySerializer
 
 from .modules.smartfin_ride_module import RideModule
-from .models import RideData, Buoys
+from .models import RideData, Buoy, DataframeCSV
 import json
 import random
 import sys
+from zipfile import ZipFile
+from wsgiref.util import FileWrapper
+
+
+
 
 # TODO: combine get many with the location and date views
 
@@ -91,21 +96,26 @@ def rideGet(request, rideId):
         rideModule = RideModule()
 
         # get all CDIP buoys from db
-        buoys = Buoys.objects.values()
+        buoys = Buoy.objects.values()
         if len(buoys) == 0:
             buoys = rideModule.get_CDIP_stations()
             for buoy in buoys:
-                buoyModel = Buoys(**buoy)
+                buoyModel = Buoy(**buoy)
                 buoyModel.save()
     
         # fetch data from the ride_module
-        data = rideModule.get_ride_data(rideId, buoys)
+        data, dfs = rideModule.get_ride_data(rideId, buoys)
         if data == {}:
             return Response({})
 
         # save ride data into RideData model
         rideModel = RideData(**data)
         rideModel.save()
+
+        mdfModel = DataframeCSV(ride=rideModel, filePath=dfs['motionData'], datatype='motion')
+        mdfModel.save()
+        odfModel = DataframeCSV(ride=rideModel, filePath=dfs['oceanData'], datatype='ocean')
+        odfModel.save()
         print(f'uploaded {sys.getsizeof(data)} bytes of ride data to database...')
 
     # return ride data that was sent to model
@@ -292,12 +302,23 @@ def updateHeights(request):
     return JsonResponse({'success': 'rides updated '})
 
 
+@api_view(['GET'])
+def get_dataframe(response, rideId, datatype, download=False):
+
+    dfPath = DataframeCSV.objects.get(ride__rideId=rideId, datatype=datatype)
+    dfPath = getattr(dfPath, 'filePath')
+    print(dfPath)
+    fi = open(dfPath, 'rb')
+    return FileResponse(fi)
+
+
+
 
 @api_view(['GET'])
 def buoyList(request):
     
     # return list of buoys
-    data = Buoys.objects.all().values_list('buoyNum', flat=True)
+    data = Buoy.objects.all().values_list('buoyNum', flat=True)
     print(data)
     return Response(data)
 

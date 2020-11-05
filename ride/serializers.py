@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 # model we want to serialize, in our models.py file
-from .models import RideData, Buoys #, MotionData, OceanData
+from .models import RideData, Buoy #, MotionData, OceanData
 
 # serializeres are responsible for translating json into model querysets and 
 # saving the generated queryset to our database
@@ -13,7 +13,7 @@ class RideSerializer(serializers.ModelSerializer):
 
 class BuoySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Buoys
+        model = Buoy
         fiels = '__all__'
 
 class HeightSerializer(serializers.ModelSerializer):

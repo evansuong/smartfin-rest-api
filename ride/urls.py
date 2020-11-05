@@ -34,6 +34,7 @@ urlpatterns = [
     path('date/field-get/<str:startDate>/<str:endDate>/<str:fields>/', views.fieldGetDate, name='field-get-date'),
 
     path('update-heights/', views.updateHeights, name='update-heights'),
+    path('get-dataframe/<str:rideId>/<str:datatype>', views.get_dataframe, name='get-dataframe'),
    
     path('buoy-list/', views.buoyList, name='buoy-list'),
 ]
