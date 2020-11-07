@@ -12,13 +12,14 @@ This api is built on top of the Django REST framework and can be used to fetch I
 
 ## Installation (recommended to do this in a virtual environment)
     pip install django
-	   pip install djangorestframework
+    pip install djangorestframework
     pip install -r requirements.txt
     
 ## Run
 use the runserver commmand from manage.py to host the api on your local machine 
     
     python manage.py runserver
+
 
 ## Structure 
 ### API info endpoints
