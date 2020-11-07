@@ -135,8 +135,6 @@ class RideModule:
         mdf.to_csv(mdf_path, index=False)
         odf.to_csv(odf_path, index=False)
 
-        data, dfs = {}
-
         # format data into dict for ride model
         data = {
             'rideId': ride_id, 
