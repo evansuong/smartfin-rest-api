@@ -73,6 +73,10 @@ class RideModule:
         # get given ride's CSV from its ride ID using function above
         mdf, odf = self.get_csv_from_ride_id(ride_id) 
 
+        if len(mdf) == 0 or len(odf) == 0:
+            print('ERROR: Ride has no valid data, returning...')
+            return {}, {}
+
         latitude = mdf['Latitude'].mean() / 100000
         longitude = mdf['Longitude'].mean() / 100000
                        
@@ -83,9 +87,7 @@ class RideModule:
         #Drop the NAN values from the motion data:
         mdf = mdf_dropped.dropna(axis=0, how='any')
         
-        if len(mdf) == 0 or len(odf) == 0:
-            print('ERROR: Ride has no valid data, returning...')
-            return {}
+     
             
         # convert imu data 
         if(convert_imu):
@@ -133,6 +135,7 @@ class RideModule:
         mdf.to_csv(mdf_path, index=False)
         odf.to_csv(odf_path, index=False)
 
+        data, dfs = {}
 
         # format data into dict for ride model
         data = {
@@ -388,7 +391,7 @@ class RideModule:
         else:
             print('here')
             df = pd.DataFrame() # empty DF just so something is returned
-            return df
+            return df, df
       
     
 

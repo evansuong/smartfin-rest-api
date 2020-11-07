@@ -105,8 +105,9 @@ def rideGet(request, rideId):
     
         # fetch data from the ride_module
         data, dfs = rideModule.get_ride_data(rideId, buoys)
+        print(data)
         if data == {}:
-            return Response({})
+            return JsonResponse({"Error": f"no such ride '{rideId}' exists"})
 
         # save ride data into RideData model
         rideModel = RideData(**data)
@@ -127,10 +128,14 @@ def rideGet(request, rideId):
 def rideGetRandom(request, count):
 
     rideSet = RideData.objects.all()
+        
     if count > 0:
         if count > len(rideSet):
-            print('Not enough rides in database')
-            return
+            if len(rideSet) == 1:
+                return JsonResponse({ "Error": f"there is only {len(rideSet)} entry currently in the database" })
+            else:
+                return JsonResponse({ "Error": f"there are only {len(rideSet)} entries currently in the database" })
+
         rideSet = RideData.objects.all()
         rideSet = random.sample(list(rideSet), count)
     serializer = RideSerializer(rideSet, many=True)
@@ -152,6 +157,9 @@ def rideGetLocation(request, location):
         # here | is being used as set union not bitwise OR
         rideSet = RideData.objects.filter(Q(loc1=loc1) | Q(loc2=loc1) | Q(loc3=loc1) | Q(loc1=loc3) | Q(loc2=loc3) | Q(loc3=loc3))
 
+    if len(rideSet) <= 0:
+        return JsonResponse({ "Error": "no rides found in this location" })
+
     serializer = RideSerializer(rideSet, many=True)
     return Response(serializer.data)
 
@@ -164,11 +172,16 @@ def rideGetDate(request, startDate, endDate):
     try:     
         startDate = int(startDate)
         endDate = int(endDate)
+        if startDate > endDate:
+            return JsonResponse({"Error": "end date must be greater than start date"})
     except:
-        return JsonResponse({'error': 'dates must be formatted in unix time'})
+        return JsonResponse({'Error': 'dates must be formatted in unix time'})
 
     # get all rides that occur after the startDate
     rideSet = RideData.objects.filter(Q(startTime__gte=startDate) & Q(endTime__lte=endDate))
+    if len(rideSet) <= 0:
+        return JsonResponse({ "Error": f"No rides found between {startDate} and {endDate}" })
+
     serializer = RideSerializer(rideSet, many=True)
     return Response(serializer.data)
 
@@ -185,8 +198,11 @@ def fieldGet(request, rideId, fields):
         attributes.append(fields)
  
     data = {}
-    
-    field = RideData.objects.get(rideId=rideId)
+    try:
+        field = RideData.objects.get(rideId=rideId)
+    except:
+        return JsonResponse({"Error": f"No such ride {rideId} found in database, create a new ride if the ride should exist with the ride-get query"})
+
     for attribute in attributes:
         data[attribute] = getattr(field, attribute)
 
@@ -210,10 +226,13 @@ def fieldGetRandom(request, fields, count):
     # build set if ride attributes
     fieldSet = RideData.objects.all().values_list(*attributes)
     if count > 0:
-        if count > len(fieldSet):
-            print('Not enough rides in database')
-            return
-        fieldSet = random.sample(list(fieldSet), count)
+         if count > len(fieldSet):
+            if len(fieldSet) == 1:
+                return JsonResponse({ "Error": f"there is only {len(fieldSet)} entry currently in the database" })
+            else:
+                return JsonResponse({ "Error": f"there are only {len(fieldSet)} entries currently in the database" })
+        
+    fieldSet = random.sample(list(fieldSet), count)
 
     # format data to send back
     data = {'data': [dict(zip(attributes, values)) for values in fieldSet]}
@@ -245,8 +264,10 @@ def fieldGetLocation(request, fields, location):
         # here | is being used as set union not bitwise OR
         fieldSet = RideData.objects.filter(Q(loc1=loc1) | Q(loc2=loc1) | Q(loc3=loc1) | Q(loc1=loc3) | Q(loc2=loc3) | Q(loc3=loc3))
         fieldSet = fieldSet.values_list(*attributes)
+
+    if len(fieldSet) <= 0:
+        return JsonResponse({ "Error": "no rides found in this location" })
     
-    fieldSet = RideData.objects.all().values_list(*attributes)
     data = {'data': [dict(zip(attributes, values)) for values in fieldSet]}
     return JsonResponse(data)
 
@@ -266,12 +287,20 @@ def fieldGetDate(request, startDate, endDate, fields):
     try:     
         startDate = int(startDate)
         endDate = int(endDate)
+       
+        if startDate > endDate:
+            return JsonResponse({"Error": "end date must be greater than start date"})
+  
     except:
         return JsonResponse({'error': 'dates must be formatted in unix time'})
 
     # get all rides that occur after the startDate and before end date
     fieldSet = RideData.objects.filter(Q(startTime__gte=startDate) & Q(endTime__lte=endDate))
     fieldSet = fieldSet.values_list(*attributes)
+
+    if len(fieldSet) <= 0:
+        return JsonResponse({ "Error": f"No rides found between {startDate} and {endDate}" })
+
     data = {'data': [dict(zip(attributes, values)) for values in fieldSet]}
     return JsonResponse(data)
 
@@ -305,7 +334,10 @@ def updateHeights(request):
 @api_view(['GET'])
 def get_dataframe(response, rideId, datatype, download=False):
 
-    dfPath = DataframeCSV.objects.get(ride__rideId=rideId, datatype=datatype)
+    try:
+        dfPath = DataframeCSV.objects.get(ride__rideId=rideId, datatype=datatype)
+    except:
+        return JsonResponse({"Error": f"No such ride {rideId} found in database, create a new ride if the ride should exist with the ride-get query"})
     dfPath = getattr(dfPath, 'filePath')
     print(dfPath)
     fi = open(dfPath, 'rb')
