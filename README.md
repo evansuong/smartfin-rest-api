@@ -58,24 +58,19 @@ response = requests.get('https://lit-sands-95859.herokuapp.com/ride/ride-fields/
 data = response.json()
 ```
 
-    data: 
-    {'id of smartfin session': 'rideId',
-     'location (city, county, state) of session': 'loc1, loc2, loc3',
-     'start time of session': 'startTime',
-     'end time of session': 'endTime',
-     'significant wave height calculated by smartfin': 'heightSmartfin',
-     'significant wave height reported by nearest CDIP buoy': 'heightCDIP',
-     'time series displacement data calcualted by smartfin': 'heightList',
-     'time series temperature data calcualted by smartfin': 'tempList',
-     'sample rate of smartfin IMU time series data': 'heightSampleRate',
-     'sample rate of smartfin ocean time series  data': 'tempSampleRate',
-     'calibrated ocean temperature read by smartfin': 'tempSmartfin',
-     'ocean temperature reported by nearest CDIP buoy': 'tempCDIP',
-     'nearest CDIP buoy to smartfin session': 'buoyCDIP',
-     'latitude of smartfin session': 'latitude',
-     'longitude of smartfin session': 'longitude',
-     'IMU data csv file': 'motionData',
-     'ocean sensor csv file': 'oceanData'}
+#### data: 
+    {'List all ride ids': '/ride-list/',
+     'List ride fields': '/ride-fields/',
+     'Get single ride': '/ride-get/<str:rideId>/',
+     'Get random set of rides': '/many/ride-get/<int:count>/',
+     'Filter rides by location': '/location/ride-get/<str:location>/',
+     'Filter rides by date': '/date/ride-get/<str:startDate>/<str:endDate>/',
+     'Get single ride attribute': 'field-get/<str:rideId>/<str:fields>/',
+     'Get attributes of random set of rides': 'random/field-get/<int:count>/<str:fields>/',
+     'Get attributes of rides filtered by location': 'location/field-get/<str:location>/<str:fields>/',
+     'Get attributes of rides filtered by date': 'date/field-get/<str:startDate>/<str:endDate>/<str:fields>/',
+     'Update heights of all rides in database': 'update-heights/',
+     'Get list of active CDIP buoys': 'buoy-list/'}
 
 ### fetching all rides in san diego
 ```python
@@ -90,8 +85,9 @@ import requests
 response = requests.get('https://lit-sands-95859.herokuapp.com/ride/random/field-get/5/heightSmartfin:tempSmartfin/')
 data = response.json()
 ```
-    data: 
-    [{'rideId': '16135',
+data: 
+     
+     [{'rideId': '16135',
       'heightSmartfin': 0.39656736009880406,
       'tempSmartfin': 19.571597727272728},
      {'rideId': '16168',
