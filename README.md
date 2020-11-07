@@ -1,52 +1,51 @@
-# smartfin_ride_api
-backend api code for smartfin webapp
-
 # Smartfin Ride API
 
-Rest API can be used to fetch IMU and Ocean data captured by the Smartfin surfboard tool, analyzed and processed by UCSD's Engineers for Exploration Smartfin Research Team. This API provides users the ability to post ride ids to our smartfin database to be processed by our data analysis methods that we have been cultivating this past summer and fall. 
+This api is built on top of the Django REST framework and can be used to fetch IMU and Ocean data captured by the Smartfin surfboard tool, analyzed and processed by UCSD's Engineers for Exploration Smartfin Research Team.
 
-The Ride API can deliver the following: 
-* id of smartfin session
-* location (city, county, state) of session
-* start time of session
-* end time of session
-* significant wave height calculated by smartfin
-* significant wave height reported by nearest CDIP buoy
-* time series displacement data calcualted by smartfin
-* time series temperature data calcualted by smartfin
-* sample rate of smartfin IMU time series data
-* sample rate of smartfin ocean time series  data
-* calibrated ocean temperature read by smartfin
-* ocean temperature reported by nearest CDIP buoy
-* nearest CDIP buoy to smartfin session
-* latitude of smartfin session
-* longitude of smartfin session
-* IMU data csv string
-* ocean sensor csv string
 
-## Querying Ride Database:
-use "https://" protocol to request data
+## Requirements
+* python 3.8
+* pythoon virtual environment (recommended) [(set up)](https://docs.python-guide.org/dev/virtualenvs/)
+* Django (3.1) [(set up)](https://docs.djangoproject.com/en/3.1/intro/install/)
+* Django REST Framework [(set up)](https://www.django-rest-framework.org/)
 
-pathway endpoints all begin from the API domain name: "lit-sands-95859.herokuapp.com/ride/"
-the base endpoint returns the rest of the endpoints for the API
 
-### from this append any of the api endpoints:
-full ride data:
-* "ride-list/": list of all ride ID's currently in the database
-* "ride-fields/": list of all data fields for each database entry
-* "ride-get/{rideId}/": returns the entry with the specified ride id, and creates a new entry if that ride is not found in the database
-* "random/ride-get/{count}/": returns a random list of rides, the length of which is specified by "count"
-* "location/ride-get/{location}/": filters rides in database by location (city) and returns the resulting entries
-* "date/ride-get/{startDate}/{endDate}/": filters rides in database between the start and end dates (unix timestamps) and returns the resulting entries
+## Installation (recommended to do this in a virtual environment)
+    pip install django
+	   pip install djangorestframework
+    pip install -r requirements.txt
+    
+## Run
+use the runserver commmand from manage.py to host the api on your local machine 
+    
+    python manage.py runserver
 
-query for specified field values:
-* "field-get/{rideId}/{fields}/": returns the specified data fields of ride by ride id
-* "random/field-get/{count}/{fields}/": returns a random list of specified data fields, the length of which is specified by "count" 
-* "location/field-get/{location}/{fields}/": returns a list of specified data fields filtered by location (city)
-* "date/field-get/{startDate}/{endDate}/{fields}/": returns a list of specified data fields filtered by start and end date (unix timestamps)\
+## Structure 
+### API info endpoints
+| Endpoint          | HTTP Method | Result                                             |
+|-------------------|-------------|----------------------------------------------------|
+| ride/             | GET         | Get list of api endpoints and functionaltiy        |
+| ride/ride-list/   | GET         | Get list of ids of all rides currently in database |
+| ride/ride-fields/ | GET         | Get list of ride's fields                          |
 
-NOTE: you can query for multiple data fields at a time, separating each field with a colon: "field1:field2:field3:..."
-NOTE: all data is returned in JSON format
+### Get ride data 
+| Endpoint                                                        | HTTP Method | Result                                                                                                                                      |
+|-----------------------------------------------------------------|-------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| ride/ride-get/<str:rideId>/                                     | GET/POST    | Get ride data by id, if ride is not in database create new entry                                                                            |
+| ride/field-get/<str:rideId>/<str:fields>/                       | GET         | Get specified fields of a ride data entry. Specify multiple fields by separating them with a ":" i.e. "heightSmartfin:startDate"            |
+| ride/random/ride-get/<int:count>/                               | GET         | Get list of random ride datas, length of list specified by "count"                                                                          |
+| ride/random/field-get/<int:count>/<str:fields>/                 | GET         | Get list of random ride data fields, length specified by "count". Specify multiple fields with ":" separation                               |
+| ride/location/ride-get/<str:location>/                          | GET         | Get list of ride datas filtered by location. Location can be the name of the city or county the session took place                          |
+| ride/location/field-get/<str:location>/<str:fields>/            | GET         | Get list of ride data fields filtered by location. Specify multiple fields with ":" separation                                              |
+| ride/date/ride-get/<int:startDate>/<int:endDate>/               | GET         | Get list of ride datas that occured between the start and end date specified. Dates are formatted in unix time                              |
+| ride/date/field-get/<int:startDate>/<int:endDate>/<str:fields>/ | GET         | Get list of ride datas that occured between the start and end date specified. Specify multiple fields with ":" separation. Unix time dates. |
+
+
+### other functionality
+| Endpoint                                   | HTTP Method | Result                                                                                                                        |
+|--------------------------------------------|-------------|-------------------------------------------------------------------------------------------------------------------------------|
+| get-dataframe/<str:rideId>/<str:datatype>/ | GET         | get a CSV file of a smartfin session's data. Datatype can be either 'motion' (IMU sensor data) or 'ocean' (ocean sensor data) |
+| buoy-list/                                 | GET         | get list of all currently deployed CDIP buoys                                                                                 |
 
 
 # Usage Examples
@@ -58,24 +57,24 @@ response = requests.get('https://lit-sands-95859.herokuapp.com/ride/ride-fields/
 data = response.json()
 ```
 
-data: 
-{'id of smartfin session': 'rideId',
- 'location (city, county, state) of session': 'loc1, loc2, loc3',
- 'start time of session': 'startTime',
- 'end time of session': 'endTime',
- 'significant wave height calculated by smartfin': 'heightSmartfin',
- 'significant wave height reported by nearest CDIP buoy': 'heightCDIP',
- 'time series displacement data calcualted by smartfin': 'heightList',
- 'time series temperature data calcualted by smartfin': 'tempList',
- 'sample rate of smartfin IMU time series data': 'heightSampleRate',
- 'sample rate of smartfin ocean time series  data': 'tempSampleRate',
- 'calibrated ocean temperature read by smartfin': 'tempSmartfin',
- 'ocean temperature reported by nearest CDIP buoy': 'tempCDIP',
- 'nearest CDIP buoy to smartfin session': 'buoyCDIP',
- 'latitude of smartfin session': 'latitude',
- 'longitude of smartfin session': 'longitude',
- 'IMU data csv file': 'motionData',
- 'ocean sensor csv file': 'oceanData'}
+    data: 
+    {'id of smartfin session': 'rideId',
+     'location (city, county, state) of session': 'loc1, loc2, loc3',
+     'start time of session': 'startTime',
+     'end time of session': 'endTime',
+     'significant wave height calculated by smartfin': 'heightSmartfin',
+     'significant wave height reported by nearest CDIP buoy': 'heightCDIP',
+     'time series displacement data calcualted by smartfin': 'heightList',
+     'time series temperature data calcualted by smartfin': 'tempList',
+     'sample rate of smartfin IMU time series data': 'heightSampleRate',
+     'sample rate of smartfin ocean time series  data': 'tempSampleRate',
+     'calibrated ocean temperature read by smartfin': 'tempSmartfin',
+     'ocean temperature reported by nearest CDIP buoy': 'tempCDIP',
+     'nearest CDIP buoy to smartfin session': 'buoyCDIP',
+     'latitude of smartfin session': 'latitude',
+     'longitude of smartfin session': 'longitude',
+     'IMU data csv file': 'motionData',
+     'ocean sensor csv file': 'oceanData'}
 
 ### fetching all rides in san diego
 ```python
@@ -90,29 +89,29 @@ import requests
 response = requests.get('https://lit-sands-95859.herokuapp.com/ride/random/field-get/5/heightSmartfin:tempSmartfin/')
 data = response.json()
 ```
-data: 
-[{'rideId': '16135',
-  'heightSmartfin': 0.39656736009880406,
-  'tempSmartfin': 19.571597727272728},
- {'rideId': '16168',
-  'heightSmartfin': 0.5290967091550641,
-  'tempSmartfin': 18.534223706176963},
- {'rideId': '15962',
-  'heightSmartfin': 0.4584329574188188,
-  'tempSmartfin': 15.612076023391813},
- {'rideId': '16178',
-  'heightSmartfin': 0.4679436020698194,
-  'tempSmartfin': 18.86951451187335},
- {'rideId': '16380',
-  'heightSmartfin': 0.5590487240759578,
-  'tempSmartfin': 17.33151226158038}]
+    data: 
+    [{'rideId': '16135',
+      'heightSmartfin': 0.39656736009880406,
+      'tempSmartfin': 19.571597727272728},
+     {'rideId': '16168',
+      'heightSmartfin': 0.5290967091550641,
+      'tempSmartfin': 18.534223706176963},
+     {'rideId': '15962',
+      'heightSmartfin': 0.4584329574188188,
+      'tempSmartfin': 15.612076023391813},
+     {'rideId': '16178',
+      'heightSmartfin': 0.4679436020698194,
+      'tempSmartfin': 18.86951451187335},
+     {'rideId': '16380',
+      'heightSmartfin': 0.5590487240759578,
+      'tempSmartfin': 17.33151226158038}]
 
 
-### parsing motion and ocean CSV string into a pandas dataframe through StringIO:
+### parsing motion and ocean CSV string into a pandas dataframe through BytesIO:
 ```python
-from io import StringIO
+from io import BytesIO
 import pandas as pd
 
-csv_str = StringIO(data['motionData'])
+csv_str = BytesIO(data['motionData'])
 dataframe = pd.read_csv(csv_str)
 ```
