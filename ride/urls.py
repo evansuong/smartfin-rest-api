@@ -23,7 +23,8 @@ urlpatterns = [
     path('ride-list/', views.rideList, name='ride-list'),
     path('ride-fields/', views.rideFields, name='ride-fields'),
 
-    path('ride-get/<str:rideId>/', views.rideGet, name='ride-get-single'),
+    path('ride-get/<str:rideId>/', views.rideGet, name='ride-get-single'),    
+    path('ride-delete/<str:rideId>/', views.rideDelete, name='ride-delete'),
     path('random/ride-get/<int:count>/', views.rideGetRandom, name='ride-get-random'),
     path('location/ride-get/<str:location>/', views.rideGetLocation, name='ride-get-location'),
     path('date/ride-get/<str:startDate>/<str:endDate>/', views.rideGetDate, name='ride-get-date'),

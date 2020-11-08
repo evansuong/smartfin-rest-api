@@ -27,20 +27,21 @@ from wsgiref.util import FileWrapper
 def rideOverview(request):
     # list of url patterns in this api
     api_urls = {
-        'List all ride ids': '/ride-list/',
-        'List ride fields': '/ride-fields/',
+        'Get overview of api endpoints': 'ride',
+        'List all ride ids': 'ride-list/',
+        'List ride fields': 'ride-fields/',
 
-        'Get single ride': '/ride-get/<str:rideId>/',
-        'Get random set of rides': '/many/ride-get/<int:count>/',
-        'Filter rides by location': '/location/ride-get/<str:location>/',
-        'Filter rides by date': '/date/ride-get/<str:startDate>/<str:endDate>/',
+        'Get single ride': 'ride-get/<str:rideId>/',
+        'Get random set of rides': 'random/ride-get/<int:count>/',
+        'Filter rides by location': 'location/ride-get/<str:location>/',
+        'Filter rides by date': 'date/ride-get/<int:startDate>/<int:endDate>/',
 
         'Get single ride attribute': 'field-get/<str:rideId>/<str:fields>/',
         'Get attributes of random set of rides': 'random/field-get/<int:count>/<str:fields>/',
         'Get attributes of rides filtered by location': 'location/field-get/<str:location>/<str:fields>/', 
         'Get attributes of rides filtered by date': 'date/field-get/<str:startDate>/<str:endDate>/<str:fields>/',
 
-        'Update heights of all rides in database': 'update-heights/',
+        'Get ocean and motion dataframes as CSV files': 'get-dataframe/<str:rideId>/<str:datatype>',
         'Get list of active CDIP buoys': 'buoy-list/'
     }
 
@@ -67,17 +68,11 @@ def rideFields(request):
         'end time of session': 'endTime',
         'significant wave height calculated by smartfin': 'heightSmartfin',
         'significant wave height reported by nearest CDIP buoy': 'heightCDIP',
-        'time series displacement data calcualted by smartfin': 'heightList',
-        'time series temperature data calcualted by smartfin': 'tempList',
-        'sample rate of smartfin IMU time series data': 'heightSampleRate',
-        'sample rate of smartfin ocean time series  data': 'tempSampleRate',
         'calibrated ocean temperature read by smartfin': 'tempSmartfin',
         'ocean temperature reported by nearest CDIP buoy': 'tempCDIP',
         'nearest CDIP buoy to smartfin session': 'buoyCDIP',
         'latitude of smartfin session': 'latitude',
         'longitude of smartfin session': 'longitude',
-        'IMU data csv file': 'motionData',
-        'ocean sensor csv file': 'oceanData'
     }
     return JsonResponse(data)
 
@@ -122,6 +117,16 @@ def rideGet(request, rideId):
     # return ride data that was sent to model
     serializer = RideSerializer(data, many=False)
     return Response(serializer.data)
+
+@api_view(['DELETE'])
+def rideDelete(request, rideId):
+    try:
+        rideToDelete = RideData.objects.get(rideId=rideId)
+        rideToDelete.delete()
+    except:
+        return JsonResponse({"Error": "ride not found"})
+    
+    return JsonResponse({"success": f"ride '{rideId}' successfully deleted"})
 
 
 @api_view(['GET'])
