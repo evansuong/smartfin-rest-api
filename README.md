@@ -33,6 +33,7 @@ use the runserver commmand from manage.py to host the api on your local machine
 | Endpoint                                                        | HTTP Method | Result                                                                                                                                      |
 |-----------------------------------------------------------------|-------------|---------------------------------------------------------------------------------------------------------------------------------------------|
 | ride/ride-get/<str:rideId>/                                     | GET/POST    | Get ride data by id, if ride is not in database create new entry                                                                            |
+| ride/ride-delete/<str:rideId>/ | DELETE | Delete a ride entry by id |
 | ride/field-get/<str:rideId>/<str:fields>/                       | GET         | Get specified fields of a ride data entry. Specify multiple fields by separating them with a ":" i.e. "heightSmartfin:startDate"            |
 | ride/random/ride-get/<int:count>/                               | GET         | Get list of random ride datas, length of list specified by "count"                                                                          |
 | ride/random/field-get/<int:count>/<str:fields>/                 | GET         | Get list of random ride data fields, length specified by "count". Specify multiple fields with ":" separation                               |
