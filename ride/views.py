@@ -15,6 +15,8 @@ import random
 import sys
 from zipfile import ZipFile
 from wsgiref.util import FileWrapper
+from io import BytesIO
+import pandas as pd
 
 
 
@@ -323,10 +325,11 @@ def updateHeights(request):
 
     # for each ride currently in database...
     for id in ids:
-        rd = RideData.objects.get(rideId=id)
-        mdf = getattr(rd, 'motionData')
+        dfPath = DataframeCSV.objects.get(ride__rideId=id, datatype='motion')
+        fi = open(dfPath, 'rb')
+        mdf = pd.read_csv(BytesIO(fi))
         # calculate the new ride height from updated height analysis algorithm
-        heightUpdated = rm.get_ride_height(id, mdf)
+        heightUpdated, heightList, heightSampleRate = rm.get_ride_height(mdf)
 
         # update the old height in the database
         ride = RideData.objects.get(rideId=id)
