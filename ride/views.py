@@ -17,6 +17,7 @@ from zipfile import ZipFile
 from wsgiref.util import FileWrapper
 from io import BytesIO
 import pandas as pd
+import os
 
 
 
@@ -55,8 +56,20 @@ def rideOverview(request):
 @api_view(['GET'])
 def rideList(request):
     rd = RideData.objects.all()
-    data = rd.values_list('rideId', flat=True).order_by('startTime')
-    data = {'ids': list(data)}
+    serializer = RideSerializer(rd, many=True)
+    return Response(serializer.data)
+
+
+
+# get list of a field of all rides
+@api_view(['GET'])
+def rideFieldList(request, fields):
+
+    attributes = parseAttributes(fields)
+    rd = RideData.objects.all().values_list(*attributes)
+
+    # format data to send back
+    data = {'data': [dict(zip(attributes, values)) for values in rd]}
     return JsonResponse(data)
 
 
@@ -80,9 +93,23 @@ def rideFields(request):
 
 
 
+@api_view(['GET', 'DELETE', 'POST'])
 # create new ride or return it if it is already in the database 
-@api_view(['GET'])
 def rideGet(request, rideId):
+
+    print(request.method)
+
+    if request.method == 'GET':
+        return getRide(rideId)
+    elif request.method == 'DELETE':
+        return deleteRide(rideId)
+    else:
+        return JsonResponse({'Error': 'url not found'})
+
+
+
+def getRide(rideId):
+
     # if ride already exists in the database, return it
     try: 
         data = RideData.objects.get(rideId=rideId)
@@ -120,33 +147,32 @@ def rideGet(request, rideId):
     serializer = RideSerializer(data, many=False)
     return Response(serializer.data)
 
-@api_view(['DELETE'])
-def rideDelete(request, rideId):
+
+
+def deleteRide(rideId):
     try:
         rideToDelete = RideData.objects.get(rideId=rideId)
+
+        print(f'motion_dfs/{rideId}_mdf.csv')
+
+        # delete motion dataframe
+        if os.path.exists(f'ride/motion_dfs/{rideId}_mdf.csv'):
+            os.remove(f'ride/motion_dfs/{rideId}_mdf.csv')
+        else:
+            print("The file does not exist")
+
+        # delete ocean dataframe
+        if os.path.exists(f'ride/ocean_dfs/{rideId}_odf.csv'):
+            os.remove(f'ride/ocean_dfs/{rideId}_odf.csv')
+        else:
+            print("The file does not exist")
         rideToDelete.delete()
+
     except:
         return JsonResponse({"Error": "ride not found"})
     
     return JsonResponse({"success": f"ride '{rideId}' successfully deleted"})
 
-
-@api_view(['GET'])
-def rideGetRandom(request, count):
-
-    rideSet = RideData.objects.all()
-        
-    if count > 0:
-        if count > len(rideSet):
-            if len(rideSet) == 1:
-                return JsonResponse({ "Error": f"there is only {len(rideSet)} entry currently in the database" })
-            else:
-                return JsonResponse({ "Error": f"there are only {len(rideSet)} entries currently in the database" })
-
-        rideSet = RideData.objects.all()
-        rideSet = random.sample(list(rideSet), count)
-    serializer = RideSerializer(rideSet, many=True)
-    return Response(serializer.data)
 
 
 @api_view(['GET'])
@@ -171,6 +197,7 @@ def rideGetLocation(request, location):
     return Response(serializer.data)
 
 
+
 @api_view(['GET'])
 def rideGetDate(request, startDate, endDate):
     
@@ -193,16 +220,12 @@ def rideGetDate(request, startDate, endDate):
     return Response(serializer.data)
 
 
+
 # get single field from ride
 @api_view(['GET']) 
 def fieldGet(request, rideId, fields):
 
-    # parse attributes
-    attributes = []
-    if ':' in fields:
-        attributes = fields.split(':')
-    else:
-        attributes.append(fields)
+    attributes = parseAttributes(fields)
  
     data = {}
     try:
@@ -217,45 +240,12 @@ def fieldGet(request, rideId, fields):
     return JsonResponse(data)
 
 
-# get single field from multiple random rides
-@api_view(['GET'])
-def fieldGetRandom(request, fields, count):
-
-    # parse attributes 
-    if 'rideId' not in fields:
-        fields = 'rideId:' + fields
-    attributes = []
-    if ':' in fields:
-        attributes = fields.split(':')
-    else:
-        attributes.append(fields)
-
-    # build set if ride attributes
-    fieldSet = RideData.objects.all().values_list(*attributes)
-    if count > 0:
-         if count > len(fieldSet):
-            if len(fieldSet) == 1:
-                return JsonResponse({ "Error": f"there is only {len(fieldSet)} entry currently in the database" })
-            else:
-                return JsonResponse({ "Error": f"there are only {len(fieldSet)} entries currently in the database" })
-        
-    fieldSet = random.sample(list(fieldSet), count)
-
-    # format data to send back
-    data = {'data': [dict(zip(attributes, values)) for values in fieldSet]}
-    return JsonResponse(data)
 
 
 @api_view(['GET'])
 def fieldGetLocation(request, fields, location):
 
-    # parse attributes
-    attributes = []
-    if ':' in fields:
-        attributes = fields.split(':')
-
-    else:
-        attributes.append(fields)
+    attributes = parseAttributes(fields)
 
     # return all ride ids if all locations are specified
     if (location == 'all'):
@@ -281,14 +271,8 @@ def fieldGetLocation(request, fields, location):
 
 @api_view(['GET'])
 def fieldGetDate(request, startDate, endDate, fields):
-    
-     # parse attributes
-    attributes = []
-    if ':' in fields:
-        attributes = fields.split(':')
 
-    else:
-        attributes.append(fields)
+    attributes = parseAttributes(fields)
 
     # parse dates
     try:     
@@ -310,8 +294,6 @@ def fieldGetDate(request, startDate, endDate, fields):
 
     data = {'data': [dict(zip(attributes, values)) for values in fieldSet]}
     return JsonResponse(data)
-
-
 
 
 
@@ -339,6 +321,7 @@ def updateHeights(request):
     return JsonResponse({'success': 'rides updated '})
 
 
+
 @api_view(['GET'])
 def get_dataframe(response, rideId, datatype, download=False):
 
@@ -353,7 +336,6 @@ def get_dataframe(response, rideId, datatype, download=False):
 
 
 
-
 @api_view(['GET'])
 def buoyList(request):
     
@@ -363,3 +345,17 @@ def buoyList(request):
     return Response(data)
 
 
+
+def parseAttributes(fields):
+
+    if 'rideId' not in fields:
+        fields = 'rideId,' + fields
+
+    # parse attributes
+    attributes = []
+    if ',' in fields:
+        attributes = fields.split(',')
+    else:
+        attributes.append(fields)
+
+    return attributes

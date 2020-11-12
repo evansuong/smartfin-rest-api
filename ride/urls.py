@@ -18,24 +18,22 @@ from . import views
 
 
 urlpatterns = [
-    path('', views.rideOverview, name='ride-overview'),
+    path('', views.rideOverview, name='ride-overview'), # GET: api endpoints and descriptions
+    path('fields', views.rideFields, name='ride-fields'), # GET: list of fields in Ride Model
 
-    path('ride-list/', views.rideList, name='ride-list'),
-    path('ride-fields/', views.rideFields, name='ride-fields'),
+    path('rides', views.rideList, name='ride-list'), # GET: all ride data in db
+    path('rides/fields=<str:fields>', views.rideFieldList, name='ride-field-list'), # GET: all ride data in db of specified fields
 
-    path('ride-get/<str:rideId>/', views.rideGet, name='ride-get-single'),    
-    path('ride-delete/<str:rideId>/', views.rideDelete, name='ride-delete'),
-    path('random/ride-get/<int:count>/', views.rideGetRandom, name='ride-get-random'),
-    path('location/ride-get/<str:location>/', views.rideGetLocation, name='ride-get-location'),
-    path('date/ride-get/<str:startDate>/<str:endDate>/', views.rideGetDate, name='ride-get-date'),
+    path('rides/rideId=<str:rideId>', views.rideGet, name='ride-get-single'),  # GET/POST/DELETE: ride specified by id
+    path('rides/location=<str:location>', views.rideGetLocation, name='ride-get-location'), # GET: rides specified by location
+    path('rides/startDate=<str:startDate>,endDate=<str:endDate>', views.rideGetDate, name='ride-get-date'), # GET: rides between start and end date
 
-    path('field-get/<str:rideId>/<str:fields>/', views.fieldGet, name='field-get'),
-    path('random/field-get/<int:count>/<str:fields>/', views.fieldGetRandom, name='field-get-random'),
-    path('location/field-get/<str:location>/<str:fields>/', views.fieldGetLocation, name='field-get-location'),
-    path('date/field-get/<str:startDate>/<str:endDate>/<str:fields>/', views.fieldGetDate, name='field-get-date'),
+    path('rides/rideId=<str:rideId>/fields=<str:fields>', views.fieldGet, name='field-get'), # GET: field(s) of ride(s) specified by id
+    path('rides/location=<str:location>/fields=<str:fields>', views.fieldGetLocation, name='field-get-location'), # GET: fields(s) of ride(s) filtered by location
+    path('rides/startDate=<str:startDate>,endDate=<str:endDate>/fields=<str:fields>', views.fieldGetDate, name='field-get-date'), # GET: field(s) of ride(s) between start and end date
 
-    path('update-heights/', views.updateHeights, name='update-heights'),
-    path('get-dataframe/<str:rideId>/<str:datatype>', views.get_dataframe, name='get-dataframe'),
+    path('update-heights', views.updateHeights, name='update-heights'), # PUT: update heights in db with new method
+    path('rides/rideId=<str:rideId>/dataframes/type=<str:datatype>', views.get_dataframe, name='get-dataframe'), # GET: dataframes of specified ride
    
-    path('buoy-list/', views.buoyList, name='buoy-list'),
+    path('buoys', views.buoyList, name='buoy-list'), # GET: list of CDIP buoys
 ]
