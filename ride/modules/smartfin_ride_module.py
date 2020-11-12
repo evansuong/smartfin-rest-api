@@ -24,8 +24,6 @@ class RideModule:
 
         sWebScrape = SmartfinScraper()
         mdf, odf = sWebScrape.get_csv_from_ride_id(ride_id)
-        # get given ride's CSV from its ride ID using function above
-        # mdf, odf = self.get_csv_from_ride_id(ride_id) 
 
         if len(mdf) == 0 or len(odf) == 0:
             print('ERROR: Ride has no valid data, returning...')
@@ -63,10 +61,6 @@ class RideModule:
         print(f'calculated start_time: {start_time}')
         print(f'calculated end_time: {end_time}')
         
-    
-        # get nearest CDIP buoy
-        # mean_CDIP, means_CDIP, temp_CDIP, temps_CDIP, nearest_CDIP = self.CDIP_web_scrape(start_time, end_time, latitude, longitude, buoys)
-
         cWebScrape = CDIPScraper()
         mean_CDIP, means_CDIP, temp_CDIP, temps_CDIP, nearest_CDIP = cWebScrape.CDIP_web_scrape(start_time, end_time, latitude, longitude, buoys)
         print(f'retrieved nearest CDIP buoy: {nearest_CDIP}')
@@ -189,6 +183,7 @@ class RideModule:
             if abs(reading - med) < threshold:
                 if above == True:
                     above = False
+                    firstInstance = count
                 else:
                     consecutiveWithin += 1
 
@@ -201,6 +196,7 @@ class RideModule:
             else:
                 above = True
                 consecutiveWithin = 0
+                firstInstance = 0
             count += 1 
 
         return firstInstance
@@ -244,7 +240,6 @@ class RideModule:
                 above = False
                 firstInstance = -1
             count += 1 
-            
 
         return firstInstance
     
