@@ -30,22 +30,18 @@ import os
 def rideOverview(request):
     # list of url patterns in this api
     api_urls = {
-        'Get overview of api endpoints': 'ride',
-        'List all ride ids': 'ride-list/',
-        'List ride fields': 'ride-fields/',
-
-        'Get single ride': 'ride-get/<str:rideId>/',
-        'Get random set of rides': 'random/ride-get/<int:count>/',
-        'Filter rides by location': 'location/ride-get/<str:location>/',
-        'Filter rides by date': 'date/ride-get/<int:startDate>/<int:endDate>/',
-
-        'Get single ride attribute': 'field-get/<str:rideId>/<str:fields>/',
-        'Get attributes of random set of rides': 'random/field-get/<int:count>/<str:fields>/',
-        'Get attributes of rides filtered by location': 'location/field-get/<str:location>/<str:fields>/', 
-        'Get attributes of rides filtered by date': 'date/field-get/<str:startDate>/<str:endDate>/<str:fields>/',
-
-        'Get ocean and motion dataframes as CSV files': 'get-dataframe/<str:rideId>/<str:datatype>',
-        'Get list of active CDIP buoys': 'buoy-list/'
+        'List api endpoints': '/',
+        'List ride fields': '/fields',
+        'Get all rides in db': '/rides',
+        'Get field of all rides in db': '/rides/fields=<str:fields>',
+        'Get single ride': '/rides/rideId=<str:rideId>',
+        'Filter rides by location': '/rides/location=<str:location>',
+        'Filter rides by date': '/rides/startDate=<str:startDate>,endDate=<str:endDate>',
+        'Get single ride attribute': 'rides/rideId=<str:rideId>/fields=<str:fields>',
+        'Get attributes of rides filtered by location': 'rides/location=<str:location>/fields=<str:fields>',
+        'Get attributes of rides filtered by date': 'rides/startDate=<str:startDate>,endDate=<str:endDate>/fields=<str:fields>',
+        'Update heights of all rides in database': 'update-heights',
+        'Get list of active CDIP buoys': 'buoys',
     }
 
     return Response(api_urls)
