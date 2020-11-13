@@ -153,8 +153,6 @@ def deleteRide(rideId):
     try:
         rideToDelete = RideData.objects.get(rideId=rideId)
 
-        print(f'motion_dfs/{rideId}_mdf.csv')
-
         # delete motion dataframe
         if os.path.exists(f'ride/motion_dfs/{rideId}_mdf.csv'):
             os.remove(f'ride/motion_dfs/{rideId}_mdf.csv')
