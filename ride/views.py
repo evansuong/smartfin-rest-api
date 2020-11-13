@@ -99,6 +99,8 @@ def rideGet(request, rideId):
         return getRide(rideId)
     elif request.method == 'DELETE':
         return deleteRide(rideId)
+    elif request.method == 'POST':
+        return getRide(rideId)
     else:
         return JsonResponse({'Error': 'url not found'})
 
