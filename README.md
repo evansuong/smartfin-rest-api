@@ -25,29 +25,26 @@ use the runserver commmand from manage.py to host the api on your local machine
 ### API info endpoints
 | Endpoint          | HTTP Method | Result                                             |
 |-------------------|-------------|----------------------------------------------------|
-| ride/             | GET         | Get list of api endpoints and functionaltiy        |
-| ride/ride-list/   | GET         | Get list of ids of all rides currently in database |
-| ride/ride-fields/ | GET         | Get list of ride's fields                          |
+| ride            | GET         | Get list of api endpoints and functionaltiy        |
+| ride/rides   | GET         | Get list of ids of all rides currently in database |
+| ride/rides/fields | GET         | Get list of ride's fields                          |
 
 ### Get ride data 
 | Endpoint                                                        | HTTP Method | Result                                                                                                                                      |
 |-----------------------------------------------------------------|-------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| ride/ride-get/<str:rideId>/                                     | GET/POST    | Get ride data by id, if ride is not in database create new entry                                                                            |
-| ride/ride-delete/<str:rideId>/ | DELETE | Delete a ride entry by id |
-| ride/field-get/<str:rideId>/<str:fields>/                       | GET         | Get specified fields of a ride data entry. Specify multiple fields by separating them with a ":" i.e. "heightSmartfin:startDate"            |
-| ride/random/ride-get/<int:count>/                               | GET         | Get list of random ride datas, length of list specified by "count"                                                                          |
-| ride/random/field-get/<int:count>/<str:fields>/                 | GET         | Get list of random ride data fields, length specified by "count". Specify multiple fields with ":" separation                               |
-| ride/location/ride-get/<str:location>/                          | GET         | Get list of ride datas filtered by location. Location can be the name of the city or county the session took place                          |
-| ride/location/field-get/<str:location>/<str:fields>/            | GET         | Get list of ride data fields filtered by location. Specify multiple fields with ":" separation                                              |
-| ride/date/ride-get/<int:startDate>/<int:endDate>/               | GET         | Get list of ride datas that occured between the start and end date specified. Dates are formatted in unix time                              |
-| ride/date/field-get/<int:startDate>/<int:endDate>/<str:fields>/ | GET         | Get list of ride datas that occured between the start and end date specified. Specify multiple fields with ":" separation. Unix time dates. |
+| ride/rides/rideId=<str:rideId>                                     | GET/POST/DELETE    | Get, post, or delete ride data by id                                                                          |
+| ride/rides/rideId=<str:rideId>/fields=<str:fields>                       | GET         | Get specified fields of a ride data entry. Specify multiple fields by separating them with a "," i.e. "heightSmartfin,startDate"            |
+| ride/rides/location=<str:location>                          | GET         | Get list of ride datas filtered by location. Location can be the name of the city or county the session took place                          |
+| ride/rides/location=<str:location>/fields=<str:fields>            | GET         | Get list of ride data fields filtered by location. Specify multiple fields with "," separation                                              |
+| ride/rides/startDate=<int:startDate>/endDate=<int:endDate>             | GET         | Get list of ride datas that occured between the start and end date specified. Dates are formatted in unix time                              |
+| ride/rides/startDate=<int:startDate>/endDate=<int:endDate>/fields=<str:fields> | GET         | Get list of ride datas that occured between the start and end date specified. Specify multiple fields with "," separation. Unix time dates. |
 
 
 ### other functionality
 | Endpoint                                   | HTTP Method | Result                                                                                                                        |
 |--------------------------------------------|-------------|-------------------------------------------------------------------------------------------------------------------------------|
-| get-dataframe/<str:rideId>/<str:datatype>/ | GET         | get a CSV file of a smartfin session's data. Datatype can be either 'motion' (IMU sensor data) or 'ocean' (ocean sensor data) |
-| buoy-list/                                 | GET         | get list of all currently deployed CDIP buoys                                                                                 |
+| rides/rideId=<str:rideId>/dataframes/type=<str:datatype> | GET         | get a CSV file of a smartfin session's data. Datatype can be either 'motion' (IMU sensor data) or 'ocean' (ocean sensor data) |
+| buoys                                 | GET         | get list of all currently deployed CDIP buoys                                                                                 |
 
 
 # Usage Examples
