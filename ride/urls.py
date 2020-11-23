@@ -33,7 +33,7 @@ urlpatterns = [
     path('rides/startDate=<str:startDate>,endDate=<str:endDate>/fields=<str:fields>', views.fieldGetDate, name='field-get-date'), # GET: field(s) of ride(s) between start and end date
 
     path('update-heights', views.updateHeights, name='update-heights'), # PUT: update heights in db with new method
-    path('rides/rideId=<str:rideId>/dataframes/type=<str:datatype>,processData=<str:processData>', views.get_dataframe, name='get-dataframe'), # GET: dataframes of specified ride
+    path('rides/rideId=<str:rideId>/dataframes/type=<str:datatype>', views.get_dataframe, name='get-dataframe'), # GET: dataframes of specified ride
    
     path('buoys', views.buoyList, name='buoy-list'), # GET: list of CDIP buoys
 ]

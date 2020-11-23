@@ -29,6 +29,18 @@ class RideModule:
             print('ERROR: Ride has no valid data, returning...')
             return {}, {}
 
+        mdf = mdf.apply(
+            lambda reading: 
+                reading / 512 * 9.80665 - 9.80665 
+                if reading.name == 'IMU A2'
+                else reading)
+        
+        mdf = mdf.apply(
+            lambda reading: 
+                reading / 512 * 9.80665
+                if reading.name == 'IMU A1' or reading.name == 'IMU A3'
+                else reading)
+
         latitude = mdf['Latitude'].mean() / 100000
         longitude = mdf['Longitude'].mean() / 100000
                        
@@ -40,6 +52,7 @@ class RideModule:
                    
         # convert time into seconds
         mdf['Time'] = [time / 1000 for time in mdf['Time']]
+        mdf['Timestamp'] = [dateTime.timestamp() for dateTime in mdf.index]
 
         odf_dropped = odf.drop(['salinity', 'Calibrated Salinity', 'Salinity Stable', 'pH', 'Calibrated pH', 'pH Stable'], axis=1)
         odf = odf_dropped.dropna(axis=0, how='any')
@@ -64,13 +77,17 @@ class RideModule:
         print('uploading ride data to database...')
 
         loc1, loc2, loc3 = self.get_nearest_city(latitude, longitude)
+        
+        mdf = mdf.drop(['Time'], axis=1)
+        mdf = mdf.set_index('Timestamp')
+
 
         # compress dataframes and save path
         mdf_path = f"ride/motion_dfs/{ride_id}_mdf.csv"
         odf_path = f"ride/ocean_dfs/{ride_id}_odf.csv"
 
-        mdf.to_csv(mdf_path, index=False)
-        odf.to_csv(odf_path, index=False)
+        mdf.to_csv(mdf_path)
+        odf.to_csv(odf_path)
 
         # format data into dict for ride model
         data = {
@@ -109,25 +126,6 @@ class RideModule:
         print(f'height reading sample rate: {height_sample_rate}')
         return height_smartfin, height_list, height_sample_rate 
 
-    
-    def process_mdf(self, mdf):
-
-        mdf = mdf.apply(
-            lambda reading: 
-                reading / 512 * 9.80665 - 9.80665 
-                if reading.name == 'IMU A2'
-                else reading)
-        
-        mdf = mdf.apply(
-            lambda reading: 
-                reading / 512 * 9.80665
-                if reading.name == 'IMU A1' or reading.name == 'IMU A3'
-                else reading)
-
-        return mdf
-
-        
-        
 
     def calculate_ride_temp(self, odf):
         temps = odf['Calibrated Temperature 1']
@@ -263,7 +261,6 @@ class RideModule:
 
         start_time = df.index[0].timestamp()
         end_time = df.index[-1].timestamp()
-        print('TYPEYTPYPESDF: ', type(df.index[0]))
         return start_time, end_time
     
 

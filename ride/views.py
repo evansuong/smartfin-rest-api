@@ -323,7 +323,7 @@ def updateHeights(request):
 
 
 @api_view(['GET'])
-def get_dataframe(response, rideId, datatype, processData):
+def get_dataframe(response, rideId, datatype):
 
     try:
         dfPath = DataframeCSV.objects.get(ride__rideId=rideId, datatype=datatype)
@@ -332,14 +332,6 @@ def get_dataframe(response, rideId, datatype, processData):
     dfPath = getattr(dfPath, 'filePath')
     print(dfPath)
     fi = open(dfPath, 'rb')
-
-    if processData == 'true':
-        mdf = pd.read_csv(fi)
-
-        rm = RideModule()
-
-        mdf = rm.process_mdf(mdf)
-        fi = mdf.to_csv()
     return FileResponse(fi)
 
 
