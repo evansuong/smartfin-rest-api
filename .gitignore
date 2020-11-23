@@ -3,6 +3,3 @@
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
-
-*.ipynb
-.ipynb_checkpoints
