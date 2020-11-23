@@ -16,7 +16,7 @@ class RideModule:
 
         
     # MAIN RIDE FUNCTION
-    def get_ride_data(self, ride_id, buoys, convert_imu=True):
+    def get_ride_data(self, ride_id, buoys):
         """
         adds a ride dataframe to this dictionary 
         
@@ -37,18 +37,9 @@ class RideModule:
 
         #Drop the NAN values from the motion data:
         mdf = mdf_dropped.dropna(axis=0, how='any')
-         
-        # convert imu data 
-        if(convert_imu):
-            mdf = mdf.apply(lambda reading: reading / 512 * 9.80665 - 9.80665 
-                                                         if reading.name == 'IMU A2'
-                                                         else reading)
-            mdf = mdf.apply(lambda reading: reading / 512 * 9.80665
-                                                         if reading.name == 'IMU A1' or reading.name == 'IMU A3'
-                                                         else reading)
-
-            # convert time into seconds
-            mdf['Time'] = [time / 1000 for time in mdf['Time']]
+                   
+        # convert time into seconds
+        mdf['Time'] = [time / 1000 for time in mdf['Time']]
 
         odf_dropped = odf.drop(['salinity', 'Calibrated Salinity', 'Salinity Stable', 'pH', 'Calibrated pH', 'pH Stable'], axis=1)
         odf = odf_dropped.dropna(axis=0, how='any')
@@ -117,6 +108,24 @@ class RideModule:
         print(f'calculated smartfin significant wave height: {height_smartfin}')
         print(f'height reading sample rate: {height_sample_rate}')
         return height_smartfin, height_list, height_sample_rate 
+
+    
+    def process_mdf(self, mdf):
+
+        mdf = mdf.apply(
+            lambda reading: 
+                reading / 512 * 9.80665 - 9.80665 
+                if reading.name == 'IMU A2'
+                else reading)
+        
+        mdf = mdf.apply(
+            lambda reading: 
+                reading / 512 * 9.80665
+                if reading.name == 'IMU A1' or reading.name == 'IMU A3'
+                else reading)
+
+        return mdf
+
         
         
 

@@ -9,6 +9,7 @@ from rest_framework.decorators import api_view
 from .serializers import RideSerializer, HeightSerializer, TempSerializer, BuoySerializer
 
 from .modules.smartfin_ride_module import RideModule
+from .modules.formatter import DataFormatter
 from .models import RideData, Buoy, DataframeCSV
 import json
 import random
@@ -221,7 +222,8 @@ def rideGetDate(request, startDate, endDate):
 @api_view(['GET']) 
 def fieldGet(request, rideId, fields):
 
-    attributes = parseAttributes(fields)
+    formatter = DataFormatter()
+    attributes = formatter.parseAttributes(fields)
  
     data = {}
     try:
@@ -241,7 +243,8 @@ def fieldGet(request, rideId, fields):
 @api_view(['GET'])
 def fieldGetLocation(request, fields, location):
 
-    attributes = parseAttributes(fields)
+    formatter = DataFormatter()
+    attributes = formatter.parseAttributes(fields)
 
     # return all ride ids if all locations are specified
     if (location == 'all'):
@@ -268,7 +271,8 @@ def fieldGetLocation(request, fields, location):
 @api_view(['GET'])
 def fieldGetDate(request, startDate, endDate, fields):
 
-    attributes = parseAttributes(fields)
+    formatter = DataFormatter()
+    attributes = formatter.parseAttributes(fields)
 
     # parse dates
     try:     
@@ -319,7 +323,7 @@ def updateHeights(request):
 
 
 @api_view(['GET'])
-def get_dataframe(response, rideId, datatype, download=False):
+def get_dataframe(response, rideId, datatype, processData):
 
     try:
         dfPath = DataframeCSV.objects.get(ride__rideId=rideId, datatype=datatype)
@@ -328,6 +332,14 @@ def get_dataframe(response, rideId, datatype, download=False):
     dfPath = getattr(dfPath, 'filePath')
     print(dfPath)
     fi = open(dfPath, 'rb')
+
+    if processData == 'true':
+        mdf = pd.read_csv(fi)
+
+        rm = RideModule()
+
+        mdf = rm.process_mdf(mdf)
+        fi = mdf.to_csv()
     return FileResponse(fi)
 
 
@@ -339,19 +351,3 @@ def buoyList(request):
     data = Buoy.objects.all().values_list('buoyNum', flat=True)
     print(data)
     return Response(data)
-
-
-
-def parseAttributes(fields):
-
-    if 'rideId' not in fields:
-        fields = 'rideId,' + fields
-
-    # parse attributes
-    attributes = []
-    if ',' in fields:
-        attributes = fields.split(',')
-    else:
-        attributes.append(fields)
-
-    return attributes
