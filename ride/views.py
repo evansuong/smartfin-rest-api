@@ -62,7 +62,8 @@ def rideList(request):
 @api_view(['GET'])
 def rideFieldList(request, fields):
 
-    attributes = parseAttributes(fields)
+    formatter = DataFormatter()
+    attributes = formatter.parseAttributes(fields)
     rd = RideData.objects.all().values_list(*attributes)
 
     # format data to send back
