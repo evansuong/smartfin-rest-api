@@ -80,6 +80,29 @@ data = response.json()
 ```
 
 
+
+
+# Testing
+In the repository there is a jupyter notebook that tests all the endpoints of the API, which you can test each endpoint individually, specifying all parameters and filters. 
+
+
+# Raw Dataframe download
+The API allows you to download processed dataframes with IMU and Ocean data of every smartfin session collected directly from our sensors. 
+
+### Motion.csv 
+Contains all motion data from a smartfin session collected by the Smartfin's IMU sensors.
+
+#### Fields:
+* IMU A1: acceleration along x-axis (surfboard lengthwise direction) in m/s^2
+* IMU A2: acceleration along y-axis (up/down direction) in m/s^2 
+* IMU A3: acceleration along z-axis (surfboard lengthwise direction) in m/s^2
+* IMU G1:
+* IMU G2:
+* IMU G3:
+* IMU M1:
+* IMU M2:
+* IMU M3:
+
 ### parsing motion and ocean CSV string into a pandas dataframe through BytesIO:
 ```python
 from io import BytesIO
