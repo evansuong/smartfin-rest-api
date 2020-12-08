@@ -91,17 +91,32 @@ The API allows you to download processed dataframes with IMU and Ocean data of e
 
 ### Motion.csv 
 Contains all motion data from a smartfin session collected by the Smartfin's IMU sensors.
+Sample rate: 1s (1Hz)
+Time: Unix Time
 
 #### Fields:
+Accelerometer:
 * IMU A1: acceleration along x-axis (surfboard lengthwise direction) in m/s^2
 * IMU A2: acceleration along y-axis (up/down direction) in m/s^2 
-* IMU A3: acceleration along z-axis (surfboard lengthwise direction) in m/s^2
-* IMU G1:
+* IMU A3: acceleration along z-axis (surfboard lengthwise direction) in m/s^
+
+The rest of the fields are not used in our analysis currently, however each sensor number (1, 2, 3) correspond to the same directions as the accelerometer
+Gyroscope:
++/- 1000 degrees/s    32.8 LSB/deg/s
+* IMU G1: 
+Negative → Roll left
+Positive → Roll right
 * IMU G2:
+Positive → Left yaw/turn
+Negative → Right yaw/turn
 * IMU G3:
-* IMU M1:
-* IMU M2:
-* IMU M3:
+Positive → Upwards pitch / flip backwards
+Negative → Downwards pitch / flip forwards
+
+
+Magnetometer Scale is +/- 32760 with signed 16-bits (+/-8180 in 14-bit mode) with full scale being +/- 4192 micro-Teslas
+Magnetometer:
+IMU M1, IMU M2, IMU M3
 
 ### parsing motion and ocean CSV string into a pandas dataframe through BytesIO:
 ```python
